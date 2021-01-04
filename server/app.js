@@ -4,7 +4,10 @@ const mongoose = require('mongoose');
 const path = require('path');
 const mongoSanitize = require('express-mongo-sanitize');
 const cors = require('cors');
-require('dotenv').config()
+const userRoutes = require('./routes/userRoutes');
+const movieRoutes = require('./routes/movieRoutes');
+
+require('dotenv').config();
 
 mongoose.connect(process.env.DB_CONNECTION,
     {
@@ -27,7 +30,10 @@ app.use(mongoSanitize());
 
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
-app.use('', (req, res, next) => {
+app.use('/api/auth', userRoutes);
+app.use('/api/movies', movieRoutes);
+
+app.use('', (req, res) => {
     res.end('Server Created!');
 });
 
