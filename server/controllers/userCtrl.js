@@ -17,9 +17,10 @@ pwdCheck
 /**
  * Signup functionality expect the body request to be as follows:
  *
- * @param {String} req.body.password - User's password
- * @param {String} req.body.email - User's email for registration (Unique)
- * @param {String} req.body.role - User's role (default value user when empty)
+ * @param {Object} req.body - JSON object contain password, email and role attributes in body
+ * @param {String} req.body.email - User's email for registration
+ * @param {String} req.body.password - User's password that will be encrypted
+ * @param {String} req.body.role - User's role by default is 'user' when not specified as 'admin'
  */
 exports.signup = (req, res) => {
     const pwd = req.body.password;
@@ -47,9 +48,35 @@ exports.signup = (req, res) => {
 /**
  * Login functionality expect the body request to be as follows:
  *
+ * @param {Object} req.body - JSON object contain password, email
  * @param {String} req.body.password - User's password
  * @param {String} req.body.email - User's email
  */
 exports.login = (req, res) => {
+    const emailReq = req.body.email;
+    const password = req.body.password;
 
+    User.findOne({email: emailReq})
+        .then((user) => {
+            if (!user) {
+                return res.status(401).json({error: 'User not found'});
+            }
+            bcrypt.compare(password, user.password)
+                .then((valid) => {
+                    if (!valid) {
+                        throw new Error('Invalid password');
+                    }
+                    res.status(200).json({
+                        userId: user._id,
+                        token: jwt.sign(
+                            {userId: user._id},
+                            process.env.JWT_TOKEN,
+                            {expiresIn: '24h'}
+                        )
+                    });
+                    console.log(res);
+                })
+                .catch((error) => res.status(500).json({error}));
+        })
+        .catch((error) => res.status(500).json({error}));
 };
