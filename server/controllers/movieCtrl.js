@@ -26,8 +26,36 @@ exports.getOneMovie = (req, res) => {
     }).catch((error) => res.status(400).json({error}));
 };
 
+/**
+ * Create one movie's review in the db
+ *
+ * @param req.body.movie {Object} Movie Object JSON containing:
+ * @param {String} req.body.movie.userId
+ * @param {String} req.body.movie.title
+ * @param {String} req.body.movie.genre
+ * @param {String} req.body.movie.year
+ * @param {String} req.body.movie.plot
+ *
+ *
+ * @param {String} imageUrl Obtained when added
+ * @param {Number} likes initialized at 0
+ * @param {Number} dislikes initialized at 0
+ * @param {Array} usersLiked initializes as empty array
+ * @param {Array} usersDisliked initializes as empty array
+ *
+ */
 exports.addMovie = (req, res) => {
-    res.end('Create One Movie');
+    const newMovie = new Movie({
+        ...req.body.movie,
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+        likes: 0,
+        dislikes: 0,
+        usersLiked: [],
+        usersDisliked: []
+    });
+    newMovie.save()
+        .then(() => res.status(201).json({ message: 'New movie created!' }))
+        .catch((error) => res.status(400).json({ error }));
 };
 
 exports.updateMovie = (req, res) => {

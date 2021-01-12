@@ -9,7 +9,9 @@ const movieModel = new Schema({
     imageUrl: { type: String, required: true },
     plot: { type: String, required: true },
     likes: { type: Number, required: true },
-    usersLiked: { type: Map, of: String, required: true }
+    dislikes: { type: Number, required: true },
+    usersLiked: { type: Map, of: String, required: true },
+    usersDisliked: { type: Map, of: String, required: true }
 });
 
 module.exports = mongoose.model('Movie', movieModel);
