@@ -1,7 +1,6 @@
 const Movie = require('../models/movieModel');
 const fs = require('fs');
 
-
 /**
  * Return all movie's reviews in the db as JSON objects
  */
@@ -62,8 +61,21 @@ exports.updateMovie = (req, res) => {
     res.end('Update One Movie');
 };
 
+/**
+ * Delete one movie's review from the db
+ *
+ * @param req.params.id {String} MongoDB ID of the selected movie
+ */
 exports.deleteMovie = (req, res) => {
-    res.end('Delete One Movie');
+    Movie.findOne({ _id: req.params.id })
+        .then((movie) => {
+            const filename = movie.imageUrl.split('/images/')[1];
+            fs.unlink(`images/${filename}`, () => {
+                Movie.deleteOne({ _id: req.params.id })
+                    .then(() => res.status(200).json({ message: 'Movie deleted!' }))
+                    .catch(error => res.status(400).json({ error }));
+            });
+        }).catch((error) => res.status(500).json({ error }));
 };
 
 exports.likes = (req, res) => {
