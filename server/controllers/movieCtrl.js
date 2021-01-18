@@ -57,8 +57,30 @@ exports.addMovie = (req, res) => {
         .catch((error) => res.status(400).json({ error }));
 };
 
+/**
+ * Update one movie's review in the db
+ *
+ * @param req.body.movie {Object} Movie Object JSON containing:
+ * @param {String} req.body.movie.userId
+ * @param {String} req.body.movie.title
+ * @param {String} req.body.movie.genre
+ * @param {String} req.body.movie.year
+ * @param {String} req.body.movie.plot
+ *
+ * @param {String} imageUrl Obtained when added
+ *
+ */
 exports.updateMovie = (req, res) => {
-    res.end('Update One Movie');
+    const movie = req.file ?
+        {
+            ...req.body.movie,
+            imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+        } : { ...req.body.movie };
+    Movie.updateOne(
+        { _id: req.params.id },
+        { ...movie, _id: req.params.id }
+    ).then(() => res.status(200).json({ message: 'Movie updated!' })
+    ).catch((error) => res.status(400).json({ error }));
 };
 
 /**
